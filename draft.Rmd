@@ -1,0 +1,33 @@
+---
+title: HGEN 486 Final Project
+author: Austin Szatrowski
+monofont: iA Writer Mono S
+header-includes: 
+  - \usepackage{tikz}
+  - \usepackage{amsmath}
+  - \usepackage{amsfonts}
+output:
+  html_document:
+---
+
+# Simulated Data
+For now, we stick with aligned reads that have already been masked versus reference:
+* we're constraining such that all allele frequencies are equal (should be true; even errors and end effects shouldn't affect underlying substitution rates... unless there are within-gene transcription effect? who knows)
+```{r}
+sim_population <- function(n,  P) {
+  R <- ncol(P)
+  z <- sample(2, prob = c(0.95, 0.05), size = n, replace = TRUE)
+  x <- matrix(0, n, R)
+  for (i in 1:n) {
+    x[i, ] <- rbinom(R, rep(1, R), P[z[i], ])
+  }
+  return(list(x = x, z = z))
+}
+allele_frequencies <- rbind(
+  c(0.500, 0.500, 0.500, 0.500, 0.500, 0.500),
+  c(0.01, 0.99, 0.01, 0.99, 0.01, 0.99)
+)
+sim <- sim_population(n = 150, allele_frequencies)
+genotypes <- sim$x
+labels <- sim$z
+```
