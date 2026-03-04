@@ -5,7 +5,7 @@ A Gibbs sampling approach for analysis of SLAM-seq data.
 
 ## Ideas:
 - [ ] (1) snakemake wrapper
-- [ ] (2) evaluate performance over a range of true $\pi_g$
+- [ ] (2) evaluate performance over a range of true $\pi_g$ and substitution rates $p_n$ and $p_o$
     - [ ] $F_1$ score or similar for binary classification accuracy
     - [ ] plots of distributions vs true—aggregation mechanism via snakemake and then plot performance
     - [ ] also over a range of substitution rates; hold sequencing errors constant
@@ -19,6 +19,7 @@ A Gibbs sampling approach for analysis of SLAM-seq data.
 - [ ] Build a BAM file interface, in particular one that is sensitive to alignment quality
 - [ ] identify reads that really don't fit the pattern?? does that make statistical sense??
 - [ ] study substitution rates both by gene and by site
+- [ ] think more about optimizing $\pi_g$ more than $z$
 
 `rcartocolor::Geyser`
 `nationalparkcolors::MtRainier`

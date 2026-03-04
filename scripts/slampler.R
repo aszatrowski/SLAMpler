@@ -1,20 +1,22 @@
-library(ggplot2)
-library(tibble)
-library(dplyr)
-library(viridis)
+suppressPackageStartupMessages({
+  library(ggplot2)
+  library(tibble)
+  library(dplyr)
+  library(viridis)
+})
 set.seed(1)
-
 # global parameters
 burnin <- 500
 iterations <- 1000
 sub_rate_old <- 1e-6
 sub_rate_new <- 0.2
+total_new_rna_prop <- as.numeric(snakemake@wildcards$prop_new)
 
 
 sim_reads <- function(read_count, sub_rates_matrix, total_new_rna_prop) {
   num_sites <- ncol(sub_rates_matrix)
   labels <- sample(
-    c("old", "new"),
+    x = c("new", "old"),
     prob = c(total_new_rna_prop, 1 - total_new_rna_prop),
     size = read_count,
     replace = TRUE
@@ -25,7 +27,6 @@ sim_reads <- function(read_count, sub_rates_matrix, total_new_rna_prop) {
   }
   return(list(reads = reads, labels = labels))
 }
-
 sub_rate_matrix <- function(sub_rate_old, sub_rate_new, read_length) {
   # given T>C substitution rates in old and new RNA, build a 2 x 150bp matrix of per-site rates
   sub_rates <- matrix(
@@ -47,9 +48,8 @@ rate_matrix <- sub_rate_matrix(
 sim <- sim_reads(
   read_count = 1000,
   sub_rates_matrix = rate_matrix,
-  total_new_rna_prop = 0.5
+  total_new_rna_prop = total_new_rna_prop
 )
-
 normalize <- function(x) {
   return(x / sum(x))
 }
@@ -144,7 +144,7 @@ gene_gibbs <- function(read_data, niter = iterations) {
   pi_out <- rep(NA, niter)
   f_out <- array(0, dim = c(niter, 2, J))
 
-  z <- sample(x = 1:2, size = n, replace = TRUE, prob = pi_init)
+  z <- sample(x = 2, size = n, replace = TRUE, prob = pi_init)
   z_out[1, ] <- z
 
   f <- sample_f(read_data, z)
@@ -160,7 +160,6 @@ gene_gibbs <- function(read_data, niter = iterations) {
     z_out[i, ] <- z
     f_out[i, , ] <- f
     pi_out[i] <- pi_g
-    print(paste("Iteration", i, "complete"))
   }
   z_out_df <- data.frame(
     iter = seq_len(nrow(z_out)),
@@ -208,6 +207,8 @@ relabel_by_f_diff <- function(run) {
       temp <- run$f_old[i, ]
       run$f_old[i, ] <- run$f_new[i, ]
       run$f_new[i, ] <- temp
+      run$z[i, -1] <- ifelse(run$z[i, -1] == "old", "new", "old")
+      run$pi[i, "pi"] <- 1 - run$pi[i, "pi"]
     }
   }
   return(run)
@@ -241,7 +242,7 @@ classification_plot <- ggplot(z_hist_tbl, aes(x = iter, y = read_id)) +
   )
 ggsave(
   classification_plot,
-  filename = "plots/classification_plot.png",
+  filename = snakemake@output[["classification_plot"]],
   width = 6,
   height = 8
 )
@@ -258,7 +259,7 @@ pi_g_plot <- ggplot(run$pi, aes(x = iter, y = pi)) +
 
 ggsave(
   pi_g_plot,
-  filename = "plots/pi_g_plot.png",
+  filename = snakemake@output[["pi_plot"]],
   width = 6,
   height = 8
 )
@@ -275,12 +276,11 @@ pi_g_dist_plot <- ggplot(run$pi, aes(x = pi)) +
   theme_bw()
 ggsave(
   pi_g_dist_plot,
-  filename = "plots/pi_g_dist_plot.png",
+  filename = snakemake@output[["pi_dist_plot"]],
   width = 6,
   height = 8
 )
 
-readr::write_csv(run$pi, "outputs/pi_g_samples.csv")
 
 pivot_f <- function(f_df) {
   f_long <- f_df |>
@@ -325,4 +325,5 @@ ggsave(
   height = 8
 )
 
-readr::write_csv(f_old_new, "outputs/f_samples.csv")
+readr::write_csv(run$pi, snakemake@output[["pi_samples"]])
+readr::write_csv(f_old_new, snakemake@output[["f_samples"]])
