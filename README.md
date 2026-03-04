@@ -15,6 +15,7 @@ A Gibbs sampling approach for analysis of SLAM-seq data.
 - [ ] Build a BAM file interface, in particular one that is sensitive to alignment quality
 - [ ] identify reads that really don't fit the pattern?? does that make statistical sense??
 - [ ] study substitution rates both by gene and by site
+- [ ] allow user to specify priors for incorporation rates
 
 `rcartocolor::Geyser`
 `nationalparkcolors::MtRainier`
