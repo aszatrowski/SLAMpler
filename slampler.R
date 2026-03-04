@@ -1,8 +1,21 @@
+library(ggplot2)
+library(tibble)
+library(dplyr)
+library(viridis)
+set.seed(1)
+
+# global parameters
+burnin <- 500
+iterations <- 1000
+sub_rate_old <- 1e-6
+sub_rate_new <- 0.2
+
+
 sim_reads <- function(read_count, sub_rates_matrix, total_new_rna_prop) {
   num_sites <- ncol(sub_rates_matrix)
   labels <- sample(
     c("old", "new"),
-    prob = c(1 - total_new_rna_prop, total_new_rna_prop),
+    prob = c(total_new_rna_prop, 1 - total_new_rna_prop),
     size = read_count,
     replace = TRUE
   )
@@ -27,14 +40,14 @@ sub_rate_matrix <- function(sub_rate_old, sub_rate_new, read_length) {
   return(sub_rates)
 }
 rate_matrix <- sub_rate_matrix(
-  sub_rate_old = 0.01,
-  sub_rate_new = 0.2,
+  sub_rate_old = sub_rate_old,
+  sub_rate_new = sub_rate_new,
   read_length = 150
 )
 sim <- sim_reads(
-  read_count = 500,
+  read_count = 1000,
   sub_rates_matrix = rate_matrix,
-  total_new_rna_prop = 0.2
+  total_new_rna_prop = 0.5
 )
 
 normalize <- function(x) {
@@ -95,10 +108,14 @@ sample_f <- function(reads, z) {
   MatrixF <- matrix(NA, nrow = 2, ncol = J) # allele freq matrix, 2 x J
   for (i in seq_len(2)) {
     sample_size <- sum(z == i)
-    if (sample_size == 0)
+    if (sample_size == 0) {
       number_of_ones <- rep(0, J)
-    else
-      number_of_ones <- colSums(reads[z == i, ])
+    } else {
+      # when only one read is assigned to a component the subsetting
+      # returns a vector, and colSums() will complain that the input
+      # has fewer than two dimensions.  force a matrix with drop = FALSE.
+      number_of_ones <- colSums(reads[z == i, , drop = FALSE])
+    }
     MatrixF[i, ] <- rbeta(J, number_of_ones + 1, sample_size - number_of_ones + 1)
   }
   return(MatrixF)
@@ -113,7 +130,7 @@ sample_pi <- function(z, prior_alpha = 1, prior_beta = 5) {
   return(pi_g)
 }
 
-gene_gibbs <- function(read_data, niter = 100) {
+gene_gibbs <- function(read_data, niter = iterations) {
   # for the reads for each gene, run the Gibbs sampler
   n <- nrow(read_data)
   J <- ncol(read_data)
@@ -139,29 +156,41 @@ gene_gibbs <- function(read_data, niter = 100) {
     z_out[i, ] <- z
     f_out[i, , ] <- f
     pi_out[i] <- pi_g
+    print(paste("Iteration", i, "complete"))
   }
   z_out_df <- data.frame(
     iter = seq_len(nrow(z_out)),
     z = z_out
-  )
-  f_out_df <- data.frame(
-    iter = seq_len(nrow(f_out)),
-    f = f_out
-  )
+  )[burnin:nrow(z_out), ]
+
+  f_old_out <- f_out[, 1, ]  # old RNA rates
+  f_new_out <- f_out[, 2, ]  # new RNA rates
+
+  f_old_out_df <- data.frame(
+    iter = seq_len(nrow(f_old_out)),
+    f = f_old_out
+  )[burnin:nrow(f_old_out), ]
+  f_new_out_df <- data.frame(
+    iter = seq_len(nrow(f_new_out)),
+    f = f_new_out
+  )[burnin:nrow(f_new_out), ]
+
   pi_out_df <- data.frame(
     iter = seq_along(pi_out),
     pi = pi_out
-  )
+  )[burnin:length(pi_out), ]
+
   return(
     list(
       z = z_out_df,
-      f = f_out_df,
+      f_old = f_old_out_df,
+      f_new = f_new_out_df,
       pi = pi_out_df
     )
   )
 }
 
-run <- gene_gibbs(sim$reads, niter = 500)
+run <- gene_gibbs(sim$reads)
 
 z_hist_tbl <- tibble(run$z) |>
   tidyr::pivot_longer(
@@ -172,9 +201,10 @@ z_hist_tbl <- tibble(run$z) |>
   dplyr::mutate(
     class = factor(class, levels = c(1, 2), labels = c("old", "new")),
   )
+
 classification_plot <- ggplot(z_hist_tbl, aes(x = iter, y = read_id)) +
   geom_raster(aes(fill = class)) +
-  scale_fill_viridis_d() +
+  scale_fill_viridis_d(begin = 0.25, end = 0.75) +
   labs(
     x = "Gibbs Sampler Iteration",
     y = "Read",
@@ -192,7 +222,6 @@ ggsave(
   width = 6,
   height = 8
 )
-
 
 pi_g_plot <- ggplot(run$pi, aes(x = iter, y = pi)) +
   geom_line(
@@ -227,3 +256,50 @@ ggsave(
   width = 6,
   height = 8
 )
+
+readr::write_csv(run$pi, "outputs/pi_g_samples.csv")
+
+pivot_f <- function(f_df) {
+  f_long <- f_df |>
+    tidyr::pivot_longer(
+      cols = -iter,
+      names_to = "site",
+      values_to = "f"
+    ) |>
+    group_by(iter) |>
+    summarise(f = mean(f))
+  return(f_long)
+}
+
+f_old_new <- inner_join(
+  pivot_f(run$f_old) |> rename(f_old = f),
+  pivot_f(run$f_new) |> rename(f_new = f),
+  by = "iter"
+)
+f_old_new_long <- f_old_new |>
+  tidyr::pivot_longer(
+    cols = c(f_old, f_new),
+    names_to = "population",
+    values_to = "f"
+  ) |>
+  mutate(
+    population = factor(population, levels = c("f_old", "f_new"), labels = c("old", "new"))
+  )
+
+f_plot <- ggplot(f_old_new_long, aes(x = iter, y = f)) +
+  geom_line(aes(color = population)) +
+  scale_color_viridis_d(begin = 0.25, end = 0.75) +
+  geom_hline(yintercept = c(sub_rate_new, sub_rate_old), linetype = "dashed", color = "gray") +
+  labs(
+    x = "Gibbs Sampler Iteration",
+    y = "Estimated Substitution Rate in new RNA"
+  ) +
+  theme_bw()
+ggsave(
+  f_plot,
+  filename = "plots/f_plot.png",
+  width = 6,
+  height = 8
+)
+
+readr::write_csv(f_old_new, "outputs/f_samples.csv")
