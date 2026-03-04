@@ -144,7 +144,7 @@ gene_gibbs <- function(read_data, niter = iterations) {
   pi_out <- rep(NA, niter)
   f_out <- array(0, dim = c(niter, 2, J))
 
-  z <- sample(x = 2, size = n, replace = TRUE, prob = pi_init)
+  z <- sample(x = 1:2, size = n, replace = TRUE, prob = pi_init)
   z_out[1, ] <- z
 
   f <- sample_f(read_data, z)
@@ -195,6 +195,25 @@ gene_gibbs <- function(read_data, niter = iterations) {
 }
 
 run <- gene_gibbs(sim$reads)
+
+# Post-hoc relabeling: ensure f_new > f_old so components are identifiable
+relabel_by_f_diff <- function(run) {
+  niter <- nrow(run$f_old)
+  for (i in 1:niter) {
+    # Get mean across all sites for this iteration
+    f_old_mean <- mean(as.numeric(run$f_old[i, -1]))
+    f_new_mean <- mean(as.numeric(run$f_new[i, -1]))
+    # If old > new, swap
+    if (f_old_mean > f_new_mean) {
+      temp <- run$f_old[i, ]
+      run$f_old[i, ] <- run$f_new[i, ]
+      run$f_new[i, ] <- temp
+    }
+  }
+  return(run)
+}
+
+run <- relabel_by_f_diff(run)
 
 z_hist_tbl <- tibble(run$z) |>
   tidyr::pivot_longer(
