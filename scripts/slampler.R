@@ -7,8 +7,8 @@ suppressPackageStartupMessages({
 set.seed(1)
 # global parameters
 read_count_g <- 1000
-burnin <- 500
-iterations <- 1000
+burnin <- snakemake@params[["burnin"]]
+iterations <- snakemake@params[["iterations"]]
 sub_rate_old <- 1e-6
 sub_rate_new <- 0.2
 total_new_rna_prop <- as.numeric(snakemake@wildcards$prop_new)
@@ -126,9 +126,11 @@ sample_f <- function(reads, z) {
   return(MatrixF)
 }
 
-sample_pi <- function(z, prior_alpha = 10, prior_beta = 990) {
+sample_pi <- function(z, prior_alpha = 0.1, prior_beta = 9.9) {
   # estimate pi from z.
-  # if prior_beta >> prior_alpha, put a stronger prior on new RNA being rare
+  # EV = alpha / (alpha + beta) = 0.1 / (0.1 + 9.9) = 0.01,
+  # weak-ish prior that suppresses noise at when pi_g and coverage are low,
+  # but still allows for a wide range of values
   n_new <- sum(z == 2)
   n_old <- sum(z == 1)
   pi_g <- rbeta(1, n_new + prior_alpha, n_old + prior_beta)
@@ -157,7 +159,7 @@ gene_gibbs <- function(read_data, niter = iterations) {
   for (i in 2:niter) {
     f <- sample_f(read_data, z)
     z <- sample_z(read_data, f, pi_g)
-    pi_g <- sample_pi(z, prior_alpha = 0.5, prior_beta = 0.5)
+    pi_g <- sample_pi(z)
     z_out[i, ] <- z
     f_out[i, , ] <- f
     pi_out[i] <- pi_g
