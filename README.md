@@ -4,11 +4,13 @@
 A Gibbs sampling approach for analysis of SLAM-seq data.
 
 ## Ideas:
-- [ ] (1) snakemake wrapper
+- [x] (1) snakemake wrapper
 - [ ] (2) evaluate performance over a range of true $\pi_g$ and substitution rates $p_n$ and $p_o$
-    - [ ] $F_1$ score or similar for binary classification accuracy
-    - [ ] plots of distributions vs true—aggregation mechanism via snakemake and then plot performance
+    - [x] over a range of $\pi_g$
+        - [x] plots of distributions vs true—aggregation mechanism via snakemake and then plot performance
     - [ ] also over a range of substitution rates; hold sequencing errors constant
+    - [ ] $F_1$ score or similar for binary classification accuracy
+    - [ ] realistic scenario: read count-new RNA correlation
 - [ ] (3) allow user to specify priors for incorporation rates
 - [x] good output for estimating substitution rates, since that's really the innovation we're trying to achieve here
     - both on same plot

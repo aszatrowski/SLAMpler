@@ -6,6 +6,7 @@ suppressPackageStartupMessages({
 })
 set.seed(1)
 # global parameters
+read_count_g <- 1000
 burnin <- 500
 iterations <- 1000
 sub_rate_old <- 1e-6
@@ -46,7 +47,7 @@ rate_matrix <- sub_rate_matrix(
   read_length = 150
 )
 sim <- sim_reads(
-  read_count = 1000,
+  read_count = read_count_g,
   sub_rates_matrix = rate_matrix,
   total_new_rna_prop = total_new_rna_prop
 )
@@ -180,7 +181,8 @@ gene_gibbs <- function(read_data, niter = iterations) {
 
   pi_out_df <- data.frame(
     iter = seq_along(pi_out),
-    pi = pi_out
+    pi_g = pi_out,
+    true_pi = total_new_rna_prop
   )[burnin:length(pi_out), ]
 
   return(
@@ -247,7 +249,7 @@ ggsave(
   height = 8
 )
 
-pi_g_plot <- ggplot(run$pi, aes(x = iter, y = pi)) +
+pi_g_plot <- ggplot(run$pi, aes(x = iter, y = pi_g)) +
   geom_line(
     color = viridis(1, alpha = 1, begin = 0.5, end = 1, direction = 1, option = "D")
   ) +
@@ -263,24 +265,6 @@ ggsave(
   width = 6,
   height = 8
 )
-
-pi_g_dist_plot <- ggplot(run$pi, aes(x = pi)) +
-  geom_histogram(
-    bins = 30,
-    fill = viridis(1, alpha = 1, begin = 0.5, end = 1, direction = 1, option = "D"),
-  ) +
-  labs(
-    x = "Estimated Proportion of New RNA",
-    y = "Frequency"
-  ) +
-  theme_bw()
-ggsave(
-  pi_g_dist_plot,
-  filename = snakemake@output[["pi_dist_plot"]],
-  width = 6,
-  height = 8
-)
-
 
 pivot_f <- function(f_df) {
   f_long <- f_df |>
@@ -299,6 +283,7 @@ f_old_new <- inner_join(
   pivot_f(run$f_new) |> rename(f_new = f),
   by = "iter"
 )
+
 f_old_new_long <- f_old_new |>
   tidyr::pivot_longer(
     cols = c(f_old, f_new),
