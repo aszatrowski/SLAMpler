@@ -6,12 +6,12 @@ suppressPackageStartupMessages({
 })
 set.seed(1)
 # global parameters
-read_count_g <- 1000
 burnin <- snakemake@params[["burnin"]]
 iterations <- snakemake@params[["iterations"]]
 sub_rate_old <- 1e-6
 sub_rate_new <- 0.2
-total_new_rna_prop <- as.numeric(snakemake@wildcards$prop_new)
+read_count_g <- as.numeric(snakemake@wildcards[["read_count"]])
+total_new_rna_prop <- as.numeric(snakemake@wildcards[["prop_new"]])
 
 
 sim_reads <- function(read_count, sub_rates_matrix, total_new_rna_prop) {
@@ -164,7 +164,7 @@ gene_gibbs <- function(read_data, niter = iterations) {
     f_out[i, , ] <- f
     pi_out[i] <- pi_g
     if (i %% 100 == 0) {
-      sprintf("[pi_g = %.3f] iter: %d", total_new_rna_prop, i) |> cat("\n")
+      sprintf("[pi_g = %.3f, reads = %d] iter: %d", total_new_rna_prop, read_count_g, i) |> cat("\n")
     }
   }
   z_out_df <- data.frame(
@@ -243,12 +243,6 @@ pi_g_plot <- ggplot(run$pi, aes(x = iter, y = pi_g)) +
   ) +
   theme_bw()
 
-ggsave(
-  pi_g_plot,
-  filename = snakemake@output[["pi_plot"]],
-  width = 6,
-  height = 8
-)
 
 pivot_f <- function(f_df) {
   f_long <- f_df |>
@@ -278,5 +272,13 @@ f_old_new_long <- f_old_new |>
     population = factor(population, levels = c("f_old", "f_new"), labels = c("old", "new"))
   )
 
+
+# EXPORTS
+ggsave(
+  pi_g_plot,
+  filename = snakemake@output[["pi_plot"]],
+  width = 6,
+  height = 8
+)
 readr::write_csv(run$pi, snakemake@output[["pi_samples"]])
 readr::write_csv(f_old_new, snakemake@output[["f_samples"]])

@@ -1,30 +1,35 @@
-SUB_RATES_NEW = [1e-4, 0.01, 0.05, 0.1, 0.15, 0.2]
+# SUB_RATES_NEW = [1e-4, 0.01, 0.05, 0.1, 0.15, 0.2]
 PROP_NEW = [0, 1e-3, 0.01, 0.05, 0.1, 0.15, 0.2]
+READ_COUNTS = [50, 1000, 5000]
 
 BURNIN = 1000
 GIBBS_ITER = 2000
+
 rule all:
     input: 
         expand(
-            "outputs/f_samples_new_{prop_new}.csv",
-            prop_new = PROP_NEW
-        ),
-        expand(
-            "outputs/pi_g_samples_new_{prop_new}.csv",
-            prop_new = PROP_NEW
-        ),
-        expand(
-            "plots/{plot}_plot_new_{prop_new}.png",
+            "outputs/f_samples_new_{prop_new}_reads_{read_count}.csv",
             prop_new = PROP_NEW,
+            read_count = READ_COUNTS,
+        ),
+        expand(
+            "outputs/pi_g_samples_new_{prop_new}_reads_{read_count}.csv",
+            prop_new = PROP_NEW,
+            read_count = READ_COUNTS,
+        ),
+        expand(
+            "plots/{plot}_plot_new_{prop_new}_reads_{read_count}.png",
+            prop_new = PROP_NEW,
+            read_count = READ_COUNTS,
             plot = ['pi']
         ),
-        "plots/pi_dist_plot.png"
+        # "plots/pi_dist_plot.png"
 
 rule slample:
     output: 
-        f_samples = "outputs/f_samples_new_{prop_new}.csv",
-        pi_samples = "outputs/pi_g_samples_new_{prop_new}.csv",
-        pi_plot = "plots/pi_plot_new_{prop_new}.png",
+        f_samples = "outputs/f_samples_new_{prop_new}_reads_{read_count}.csv",
+        pi_samples = "outputs/pi_g_samples_new_{prop_new}_reads_{read_count}.csv",
+        pi_plot = "plots/pi_plot_new_{prop_new}_reads_{read_count}.png",
     params:
         burnin = BURNIN,
         iterations = GIBBS_ITER

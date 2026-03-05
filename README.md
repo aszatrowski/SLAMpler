@@ -6,13 +6,16 @@ A Gibbs sampling approach for analysis of SLAM-seq data.
 ## Ideas:
 - [x] (1) snakemake wrapper
 - [ ] (2) Performance axes
-    - [x] over a range of $\pi_g$
+    - [x] (2.1) over a range of $\pi_g$
         - [x] plots of distributions vs true—aggregation mechanism via snakemake and then plot performance
         - [ ] get the prior calibration right
-    - [ ] substitution rates (old and new, e.g. sequencing error and 4sU incorporation) (experimental quality)
+    - [ ] (2.2) read counts
+        - [ ] run
+        - [ ] calibration curves
+    - [ ] (2.3) substitution rates (old and new, e.g. sequencing error and 4sU incorporation) (experimental quality)
         - [ ] accuracy heatmap f(x = old, y = new)
         - [ ] or just separate sets of calibration curves
-    - [ ] read counts
+- [ ] move to cluster
 - [ ] biologically informed priors
     - if (likely activated, via gene annotation):
         - **a module to interface with GSEA**
