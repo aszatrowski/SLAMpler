@@ -13,7 +13,7 @@ calibration_df <- pi_g_samples |>
 
 pi_g_dist_plot <- ggplot(calibration_df, aes(x = true_pi, y = mean_estimated_pi, color = true_pi)) +
   geom_point() +
-  geom_errorbar(aes(ymin = lower_ci, ymax = upper_ci), width = 0.01) +
+  geom_errorbar(aes(ymin = lower_ci, ymax = upper_ci), width = 0.005) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "#434343") +
   scale_color_viridis_c(begin = 0, end = 0.6) +
   labs(

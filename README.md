@@ -8,6 +8,7 @@ A Gibbs sampling approach for analysis of SLAM-seq data.
 - [ ] (2) evaluate performance over a range of true $\pi_g$ and substitution rates $p_n$ and $p_o$
     - [x] over a range of $\pi_g$
         - [x] plots of distributions vs true—aggregation mechanism via snakemake and then plot performance
+        * prior that is constant appears to have too much influence
     - [ ] also over a range of substitution rates; hold sequencing errors constant
     - [ ] $F_1$ score or similar for binary classification accuracy
     - [ ] realistic scenario: read count-new RNA correlation

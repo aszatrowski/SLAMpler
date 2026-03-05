@@ -126,7 +126,7 @@ sample_f <- function(reads, z) {
   return(MatrixF)
 }
 
-sample_pi <- function(z, prior_alpha = 1, prior_beta = 5) {
+sample_pi <- function(z, prior_alpha = 10, prior_beta = 990) {
   # estimate pi from z.
   # if prior_beta >> prior_alpha, put a stronger prior on new RNA being rare
   n_new <- sum(z == 2)
@@ -157,10 +157,13 @@ gene_gibbs <- function(read_data, niter = iterations) {
   for (i in 2:niter) {
     f <- sample_f(read_data, z)
     z <- sample_z(read_data, f, pi_g)
-    pi_g <- sample_pi(z, prior_alpha = 1, prior_beta = 5)
+    pi_g <- sample_pi(z, prior_alpha = 0.5, prior_beta = 0.5)
     z_out[i, ] <- z
     f_out[i, , ] <- f
     pi_out[i] <- pi_g
+    if (i %% 100 == 0) {
+      sprintf("[pi_g = %.3f] iter: %d", total_new_rna_prop, i) |> cat("\n")
+    }
   }
   z_out_df <- data.frame(
     iter = seq_len(nrow(z_out)),
@@ -228,27 +231,6 @@ z_hist_tbl <- tibble(run$z) |>
     class = factor(class, levels = c(1, 2), labels = c("old", "new")),
   )
 
-classification_plot <- ggplot(z_hist_tbl, aes(x = iter, y = read_id)) +
-  geom_raster(aes(fill = class)) +
-  scale_fill_viridis_d(begin = 0.25, end = 0.75) +
-  labs(
-    x = "Gibbs Sampler Iteration",
-    y = "Read",
-    fill = "Population Estimate"
-  ) +
-  theme_bw() +
-  theme(
-    legend.position = "bottom",
-    axis.text.y = element_blank(),
-    axis.ticks.y = element_blank(),
-  )
-ggsave(
-  classification_plot,
-  filename = snakemake@output[["classification_plot"]],
-  width = 6,
-  height = 8
-)
-
 pi_g_plot <- ggplot(run$pi, aes(x = iter, y = pi_g)) +
   geom_line(
     color = viridis(1, alpha = 1, begin = 0.5, end = 1, direction = 1, option = "D")
@@ -293,22 +275,6 @@ f_old_new_long <- f_old_new |>
   mutate(
     population = factor(population, levels = c("f_old", "f_new"), labels = c("old", "new"))
   )
-
-f_plot <- ggplot(f_old_new_long, aes(x = iter, y = f)) +
-  geom_line(aes(color = population)) +
-  scale_color_viridis_d(begin = 0.25, end = 0.75) +
-  geom_hline(yintercept = c(sub_rate_new, sub_rate_old), linetype = "dashed", color = "gray") +
-  labs(
-    x = "Gibbs Sampler Iteration",
-    y = "Estimated Substitution Rate in new RNA"
-  ) +
-  theme_bw()
-ggsave(
-  f_plot,
-  filename = "plots/f_plot.png",
-  width = 6,
-  height = 8
-)
 
 readr::write_csv(run$pi, snakemake@output[["pi_samples"]])
 readr::write_csv(f_old_new, snakemake@output[["f_samples"]])

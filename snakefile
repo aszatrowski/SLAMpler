@@ -1,5 +1,5 @@
 SUB_RATES_NEW = [1e-4, 0.01, 0.05, 0.1, 0.15, 0.2]
-PROP_NEW = [1e-4, 1e-3, 0.01, 0.05, 0.1, 0.15, 0.2, 0.5]
+PROP_NEW = [1e-3, 0.01, 0.05, 0.1, 0.15, 0.2]
 rule all:
     input: 
         expand(
@@ -13,7 +13,7 @@ rule all:
         expand(
             "plots/{plot}_plot_new_{prop_new}.png",
             prop_new = PROP_NEW,
-            plot = ['classification', 'pi']
+            plot = ['pi']
         ),
         "plots/pi_dist_plot.png"
 
@@ -22,7 +22,6 @@ rule slample:
         f_samples = "outputs/f_samples_new_{prop_new}.csv",
         pi_samples = "outputs/pi_g_samples_new_{prop_new}.csv",
         pi_plot = "plots/pi_plot_new_{prop_new}.png",
-        classification_plot = "plots/classification_plot_new_{prop_new}.png",
     script: "scripts/slampler.R"
 
 rule plot_pi_g:
