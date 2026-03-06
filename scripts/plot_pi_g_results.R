@@ -4,20 +4,33 @@ library(ggplot2)
 pi_g_samples <- readr::read_csv(unlist(snakemake@input[["pi_samples"]]))
 
 calibration_df <- pi_g_samples |>
-  group_by(true_pi) |>
+  mutate(
+    read_count = as.factor(read_count)
+  ) |>
+  group_by(true_pi, read_count) |>
   summarise(
-    mean_estimated_pi = mean(pi_g),
+    # mean a posteriori estimate
+    map = mean(pi_g),
+    # credible interval
     lower_ci = quantile(pi_g, 0.025),
     upper_ci = quantile(pi_g, 0.975)
   )
 
-pi_g_dist_plot <- ggplot(calibration_df, aes(x = true_pi, y = mean_estimated_pi, color = true_pi)) +
-  geom_point() +
-  geom_errorbar(aes(ymin = lower_ci, ymax = upper_ci), width = 0.005) +
-  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "#434343") +
-  scale_color_viridis_c(begin = 0, end = 0.6) +
+pi_g_dist_plot <- ggplot(
+  calibration_df,
+  aes(x = true_pi, y = map, color = read_count, group = read_count)
+) +
+  geom_point(
+    position = position_dodge(width = 0.0125)
+  ) +
+  geom_errorbar(
+    aes(ymin = lower_ci, ymax = upper_ci),
+    width = 0.005,
+    position = position_dodge(width = 0.0125)
+  ) +
+  scale_color_viridis_d(begin = 0, end = 0.8) +
   labs(
-    color = bquote(pi[g]),
+    color = "reads",
     x = bquote("True " ~ pi[g]),
     y = bquote("Posterior " ~ pi[g])
   ) +

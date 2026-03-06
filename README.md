@@ -10,8 +10,9 @@ A Gibbs sampling approach for analysis of SLAM-seq data.
         - [x] plots of distributions vs true—aggregation mechanism via snakemake and then plot performance
         - [ ] get the prior calibration right
     - [ ] (2.2) read counts
-        - [ ] run
-        - [ ] calibration curves
+        - [x] run
+        - [x] calibration curves
+        - [ ] strengthen prior for low read counts—little bit of empirical Bayes 
     - [ ] (2.3) substitution rates (old and new, e.g. sequencing error and 4sU incorporation) (experimental quality)
         - [ ] accuracy heatmap f(x = old, y = new)
         - [ ] or just separate sets of calibration curves

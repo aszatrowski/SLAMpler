@@ -164,7 +164,10 @@ gene_gibbs <- function(read_data, niter = iterations) {
     f_out[i, , ] <- f
     pi_out[i] <- pi_g
     if (i %% 100 == 0) {
-      sprintf("[pi_g = %.3f, reads = %d] iter: %d", total_new_rna_prop, read_count_g, i) |> cat("\n")
+      sprintf(
+        "[pi_g = %.3f, reads = %d] iter: %d",
+        total_new_rna_prop, read_count_g, i
+      ) |> cat("\n")
     }
   }
   z_out_df <- data.frame(
@@ -177,17 +180,22 @@ gene_gibbs <- function(read_data, niter = iterations) {
 
   f_old_out_df <- data.frame(
     iter = seq_len(nrow(f_old_out)),
-    f = f_old_out
+    f = f_old_out,
+    true_pi = total_new_rna_prop,
+    read_count = read_count_g
   )[burnin:nrow(f_old_out), ]
   f_new_out_df <- data.frame(
     iter = seq_len(nrow(f_new_out)),
-    f = f_new_out
+    f = f_new_out,
+    true_pi = total_new_rna_prop,
+    read_count = read_count_g
   )[burnin:nrow(f_new_out), ]
 
   pi_out_df <- data.frame(
     iter = seq_along(pi_out),
     pi_g = pi_out,
-    true_pi = total_new_rna_prop
+    true_pi = total_new_rna_prop,
+    read_count = read_count_g
   )[burnin:length(pi_out), ]
 
   return(
@@ -233,17 +241,6 @@ z_hist_tbl <- tibble(run$z) |>
     class = factor(class, levels = c(1, 2), labels = c("old", "new")),
   )
 
-pi_g_plot <- ggplot(run$pi, aes(x = iter, y = pi_g)) +
-  geom_line(
-    color = viridis(1, alpha = 1, begin = 0.5, end = 1, direction = 1, option = "D")
-  ) +
-  labs(
-    x = "Gibbs Sampler Iteration",
-    y = "Estimated Proportion of New RNA"
-  ) +
-  theme_bw()
-
-
 pivot_f <- function(f_df) {
   f_long <- f_df |>
     tidyr::pivot_longer(
@@ -274,11 +271,5 @@ f_old_new_long <- f_old_new |>
 
 
 # EXPORTS
-ggsave(
-  pi_g_plot,
-  filename = snakemake@output[["pi_plot"]],
-  width = 6,
-  height = 8
-)
 readr::write_csv(run$pi, snakemake@output[["pi_samples"]])
 readr::write_csv(f_old_new, snakemake@output[["f_samples"]])
