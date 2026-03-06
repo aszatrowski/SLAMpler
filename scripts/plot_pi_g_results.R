@@ -1,6 +1,7 @@
 library(dplyr)
 library(ggplot2)
 
+sub_rate_new <- as.numeric(snakemake@wildcards[["sub_rate_new"]])
 pi_g_samples <- readr::read_csv(unlist(snakemake@input[["pi_samples"]]))
 
 calibration_df <- pi_g_samples |>
@@ -32,7 +33,8 @@ pi_g_dist_plot <- ggplot(
   labs(
     color = "reads",
     x = bquote("True " ~ pi[g]),
-    y = bquote("Posterior " ~ pi[g])
+    y = bquote("Posterior " ~ pi[g]),
+    caption = bquote(p[n] == .(sub_rate_new))
   ) +
   theme_bw()
 ggsave(

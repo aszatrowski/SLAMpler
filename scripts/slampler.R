@@ -9,7 +9,7 @@ set.seed(1)
 burnin <- snakemake@params[["burnin"]]
 iterations <- snakemake@params[["iterations"]]
 sub_rate_old <- 1e-6
-sub_rate_new <- 0.2
+sub_rate_new <- as.numeric(snakemake@wildcards[["sub_rate_new"]])
 read_count_g <- as.numeric(snakemake@wildcards[["read_count"]])
 total_new_rna_prop <- as.numeric(snakemake@wildcards[["prop_new"]])
 
@@ -137,6 +137,7 @@ sample_pi <- function(z, prior_alpha = 0.1, prior_beta = 9.9) {
   return(pi_g)
 }
 
+
 gene_gibbs <- function(read_data, niter = iterations) {
   # for the reads for each gene, run the Gibbs sampler
   n <- nrow(read_data)
@@ -165,8 +166,8 @@ gene_gibbs <- function(read_data, niter = iterations) {
     pi_out[i] <- pi_g
     if (i %% 100 == 0) {
       sprintf(
-        "[pi_g = %.3f, reads = %d] iter: %d",
-        total_new_rna_prop, read_count_g, i
+        "[pi_g = %.3f, reads = %d, p_n = %.3f] iter: %d",
+        total_new_rna_prop, read_count_g, sub_rate_new, i
       ) |> cat("\n")
     }
   }
@@ -180,15 +181,11 @@ gene_gibbs <- function(read_data, niter = iterations) {
 
   f_old_out_df <- data.frame(
     iter = seq_len(nrow(f_old_out)),
-    f = f_old_out,
-    true_pi = total_new_rna_prop,
-    read_count = read_count_g
+    f = f_old_out
   )[burnin:nrow(f_old_out), ]
   f_new_out_df <- data.frame(
     iter = seq_len(nrow(f_new_out)),
-    f = f_new_out,
-    true_pi = total_new_rna_prop,
-    read_count = read_count_g
+    f = f_new_out
   )[burnin:nrow(f_new_out), ]
 
   pi_out_df <- data.frame(
@@ -228,7 +225,6 @@ relabel_by_f_diff <- function(run) {
   }
   return(run)
 }
-
 run <- relabel_by_f_diff(run)
 
 z_hist_tbl <- tibble(run$z) |>
@@ -257,16 +253,11 @@ f_old_new <- inner_join(
   pivot_f(run$f_old) |> rename(f_old = f),
   pivot_f(run$f_new) |> rename(f_new = f),
   by = "iter"
-)
-
-f_old_new_long <- f_old_new |>
-  tidyr::pivot_longer(
-    cols = c(f_old, f_new),
-    names_to = "population",
-    values_to = "f"
-  ) |>
+) |>
   mutate(
-    population = factor(population, levels = c("f_old", "f_new"), labels = c("old", "new"))
+    true_f_old = sub_rate_old,
+    true_f_new = sub_rate_new,
+    read_count = read_count_g
   )
 
 
