@@ -2,8 +2,8 @@ SUB_RATES_NEW = [0.005, 0.01, 0.05, 0.1]
 PROP_NEW = [0.01, 0.05, 0.1, 0.15, 0.2]
 READ_COUNTS = [50, 500, 1000, 2000]
 
-BURNIN = 1000
-GIBBS_ITER = 2000
+BURNIN = 5000
+GIBBS_ITER = 10000
 
 rule all:
     input: 
@@ -20,6 +20,10 @@ rule slample:
     params:
         burnin = BURNIN,
         iterations = GIBBS_ITER
+    conda: 'env.yaml'
+    resources:
+        runtime = 15,
+        mem = "4GB"
     script: "scripts/slampler.R"
 
 rule plot_pi_g:
@@ -31,6 +35,10 @@ rule plot_pi_g:
         )
     output: 
         pi_dist_plot = "plots/pi_dist_plot_{sub_rate_new}.png"
+    conda: 'env.yaml'
+    resources:
+        runtime = 5,
+        mem = "2GB"
     script: "scripts/plot_pi_g_results.R"
 
 rule plot_f:
@@ -43,4 +51,8 @@ rule plot_f:
         )
     output: 
         f_dist_plot = "plots/f_dist_plot.png"
+    conda: 'env.yaml'
+    resources:
+        runtime = 5,
+        mem = "2GB"
     script: "scripts/plot_f_results.R"

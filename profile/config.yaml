@@ -1,0 +1,6 @@
+executor: slurm
+jobs: 20
+default-resources:
+  slurm_account: pi-jnovembre # bill Luis
+  slurm_partition: jnovembre # don't bill Luis
+use-conda: true
