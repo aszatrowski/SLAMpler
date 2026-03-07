@@ -120,7 +120,7 @@ sample_f <- function(reads, z) {
     if (i == 1) { # old component
       MatrixF[i, ] <- rbeta(J, number_of_ones + 1, sample_size - number_of_ones + 99999)
     } else { # new component
-      MatrixF[i, ] <- rbeta(J, number_of_ones + 1, sample_size - number_of_ones + 99)
+      MatrixF[i, ] <- rbeta(J, number_of_ones + 0.1, sample_size - number_of_ones + 9.9)
     }
   }
   return(MatrixF)
@@ -146,7 +146,7 @@ gene_gibbs <- function(read_data, prior_alpha, prior_beta, adaptive_prior = FALS
 
   if (adaptive_prior) {
     # Scale prior strength by coverage
-    scale_factor <- max(1, 40 / sqrt(n))
+    scale_factor <- max(1, 10 / sqrt(n))
     prior_alpha <- prior_alpha * scale_factor
     prior_beta <- prior_beta * scale_factor
   }

@@ -21,12 +21,12 @@ f_dist_plot <- ggplot(
   aes(x = true_f_new, y = map, color = read_count, group = read_count)
 ) +
   geom_point(
-    position = position_dodge(width = 0.005)
+    position = position_dodge(width = 0.0025)
   ) +
   geom_errorbar(
     aes(ymin = lower_ci, ymax = upper_ci),
-    width = 0.005,
-    position = position_dodge(width = 0.005)
+    width = 0.025,
+    position = position_dodge(width = 0.0025)
   ) +
   scale_color_viridis_d(begin = 0, end = 0.8) +
   labs(
