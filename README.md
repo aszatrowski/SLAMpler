@@ -14,12 +14,13 @@ A Gibbs sampling approach for analysis of SLAM-seq data.
         - [x] calibration curves
         - [x] adjust prior on $f$ downward
         - [x] weaken prior for low read counts—now fixed.
-            - [ ] bump up iterations
-        - [ ] eBayes: get $\pi_g$ MLE from the data
+            - [x] bump up iterations
+            - [x] add a few more values
     - [ ] (2.3) substitution rates (old and new, e.g. sequencing error and 4sU incorporation) (experimental quality)
         - [ ] accuracy heatmap f(x = old, y = new)
         - [ ] or just separate sets of calibration curves
 - [x] move to cluster
+- [ ] eBayes: get $\pi_g$ MLE from the data
 - [ ] biologically informed priors
     - if (likely activated, via gene annotation):
         - **a module to interface with GSEA**
