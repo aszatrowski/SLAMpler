@@ -12,9 +12,9 @@ A Gibbs sampling approach for analysis of SLAM-seq data.
     - [ ] (2.2) read counts
         - [x] run
         - [x] calibration curves
-        - [ ] adjust prior on $f$ downward
-        - [ ] strengthen prior for low read counts
-            - [ ] eBayes: get $\pi_g$ MLE from the data
+        - [x] adjust prior on $f$ downward
+        - [ ] weaken prior for low read counts
+        - [ ] eBayes: get $\pi_g$ MLE from the data
     - [ ] (2.3) substitution rates (old and new, e.g. sequencing error and 4sU incorporation) (experimental quality)
         - [ ] accuracy heatmap f(x = old, y = new)
         - [ ] or just separate sets of calibration curves

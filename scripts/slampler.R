@@ -118,9 +118,9 @@ sample_f <- function(reads, z) {
     # Old RNA: Beta(1, 10000) to keep it near 1e-6
     # New RNA: Beta(20, 80) to center around 0.2
     if (i == 1) { # old component
-      MatrixF[i, ] <- rbeta(J, number_of_ones + 1, sample_size - number_of_ones + 10000)
+      MatrixF[i, ] <- rbeta(J, number_of_ones + 1, sample_size - number_of_ones + 99999)
     } else { # new component
-      MatrixF[i, ] <- rbeta(J, number_of_ones + 20, sample_size - number_of_ones + 80)
+      MatrixF[i, ] <- rbeta(J, number_of_ones + 1, sample_size - number_of_ones + 99)
     }
   }
   return(MatrixF)

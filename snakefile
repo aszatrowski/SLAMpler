@@ -1,5 +1,5 @@
-SUB_RATES_NEW = [0.005, 0.0075, 0.01, 0.05, 0.1]
-PROP_NEW = [0.01, 0.05, 0.1, 0.15, 0.2]
+SUB_RATES_NEW = [0.005, 0.010, 0.015, 0.020]
+PROP_NEW = [0.01, 0.1, 0.2]
 READ_COUNTS = [50, 500, 1000, 2000]
 
 BURNIN = 500
@@ -17,8 +17,8 @@ rule all:
 
 rule slample:
     output: 
-        f_samples = temp("outputs/f_samples_new_{prop_new}_reads_{read_count}_sub-new_{sub_rate_new}.csv"),
-        pi_samples = temp("outputs/pi_g_samples_new_{prop_new}_reads_{read_count}_sub-new_{sub_rate_new}.csv")
+        f_samples = "samples/f_samples_new_{prop_new}_reads_{read_count}_sub-new_{sub_rate_new}.csv",
+        pi_samples = "samples/pi_g_samples_new_{prop_new}_reads_{read_count}_sub-new_{sub_rate_new}.csv"
     params:
         burnin = BURNIN,
         iterations = GIBBS_ITER
@@ -31,7 +31,7 @@ rule slample:
 rule plot_pi_g:
     input: 
         pi_samples = expand(
-            "outputs/pi_g_samples_new_{prop_new}_reads_{read_count}_sub-new_{{sub_rate_new}}.csv",
+            "samples/pi_g_samples_new_{prop_new}_reads_{read_count}_sub-new_{{sub_rate_new}}.csv",
             prop_new = PROP_NEW,
             read_count = READ_COUNTS
         )
@@ -46,7 +46,7 @@ rule plot_pi_g:
 rule plot_f:
     input: 
         pi_samples = expand(
-            "outputs/f_samples_new_{prop_new}_reads_{read_count}_sub-new_{sub_rate_new}.csv",
+            "samples/f_samples_new_{prop_new}_reads_{read_count}_sub-new_{sub_rate_new}.csv",
             prop_new = PROP_NEW,
             read_count = READ_COUNTS,
             sub_rate_new = SUB_RATES_NEW
