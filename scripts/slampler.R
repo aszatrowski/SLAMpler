@@ -138,18 +138,11 @@ sample_pi <- function(z, prior_alpha = 0.1, prior_beta = 9.9) {
 }
 
 
-gene_gibbs <- function(read_data, prior_alpha, prior_beta, adaptive_prior = FALSE, niter = iterations) {
+gene_gibbs <- function(read_data, prior_alpha, prior_beta, niter = iterations) {
   # for the reads for each gene, run the Gibbs sampler
   n <- nrow(read_data)
   J <- ncol(read_data)
   pi_init <- c(0.01, 0.99)
-
-  if (adaptive_prior) {
-    # Scale prior strength by coverage
-    scale_factor <- max(1, 10 / sqrt(n))
-    prior_alpha <- prior_alpha * scale_factor
-    prior_beta <- prior_beta * scale_factor
-  }
 
   z_out <- matrix(NA, nrow = niter, ncol = n)
   pi_out <- rep(NA, niter)
@@ -161,7 +154,7 @@ gene_gibbs <- function(read_data, prior_alpha, prior_beta, adaptive_prior = FALS
   f <- sample_f(read_data, z)
   f_out[1, , ] <- f
 
-  pi_g <- sample_pi(z)
+  pi_g <- sample_pi(z, prior_alpha, prior_beta)
   pi_out[1] <- pi_g
 
   for (i in 2:niter) {
@@ -212,7 +205,7 @@ gene_gibbs <- function(read_data, prior_alpha, prior_beta, adaptive_prior = FALS
   )
 }
 
-run <- gene_gibbs(sim$reads, prior_alpha = 0.1, prior_beta = 9.9, adaptive_prior = TRUE, niter = iterations)
+run <- gene_gibbs(sim$reads, prior_alpha = 0.1, prior_beta = 0.9, niter = iterations)
 
 # Post-hoc relabeling: ensure f_new > f_old so components are identifiable
 relabel_by_f_diff <- function(run) {

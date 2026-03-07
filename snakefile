@@ -2,8 +2,8 @@ SUB_RATES_NEW = [0.005, 0.010, 0.015, 0.020]
 PROP_NEW = [0.01, 0.1, 0.2]
 READ_COUNTS = [50, 500, 1000, 2000]
 
-BURNIN = 500
-GIBBS_ITER = 1000
+BURNIN = 5000
+GIBBS_ITER = 10000
 if BURNIN >= GIBBS_ITER * 0.6:
     raise ValueError("Too many iterations discarded as burn-in")
 
