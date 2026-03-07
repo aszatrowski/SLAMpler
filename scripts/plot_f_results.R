@@ -25,7 +25,7 @@ f_dist_plot <- ggplot(
   ) +
   geom_errorbar(
     aes(ymin = lower_ci, ymax = upper_ci),
-    width = 0.025,
+    width = 0.0025,
     position = position_dodge(width = 0.0025)
   ) +
   scale_color_viridis_d(begin = 0, end = 0.8) +

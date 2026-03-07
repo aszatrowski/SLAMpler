@@ -7,6 +7,8 @@ GIBBS_ITER = 1000
 if BURNIN >= GIBBS_ITER * 0.6:
     raise ValueError("Too many iterations discarded as burn-in")
 
+localrules: plot_pi_g, plot_f
+
 rule all:
     input: 
         expand(
