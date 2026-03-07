@@ -12,22 +12,21 @@ A Gibbs sampling approach for analysis of SLAM-seq data.
     - [ ] (2.2) read counts
         - [x] run
         - [x] calibration curves
-        - [ ] strengthen prior for low read counts—little bit of empirical Bayes 
+        - [ ] adjust prior on $f$ downward
+        - [ ] strengthen prior for low read counts
+            - [ ] eBayes: get $\pi_g$ MLE from the data
     - [ ] (2.3) substitution rates (old and new, e.g. sequencing error and 4sU incorporation) (experimental quality)
         - [ ] accuracy heatmap f(x = old, y = new)
         - [ ] or just separate sets of calibration curves
-- [ ] move to cluster
+- [x] move to cluster
 - [ ] biologically informed priors
     - if (likely activated, via gene annotation):
         - **a module to interface with GSEA**
         - prior on new RNA ++
-- [ ] MCMC diagnostics with `coda`
-- [ ] Experiment with priors
-- [ ] Derivations on poster (maybe)
 - [ ] Build a BAM file interface, in particular one that is sensitive to alignment quality
 - [ ] identify reads that really don't fit the pattern?? does that make statistical sense??
-- [ ] study substitution rates both by gene and by site
-- [ ] think more about optimizing $\pi_g$ more than $z$
+- [ ] MCMC diagnostics with `coda`
+- [ ] Derivations on poster (maybe)
 
 ## Notes for poster:
 - this is a sparse sampling problem where informative priors will be most useful
