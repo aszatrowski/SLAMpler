@@ -1,6 +1,6 @@
-SUB_RATES_NEW = [0.005, 0.010, 0.020, 0.030]
-PROP_NEW = [0.01, 0.05, 0.1, 0.15, 0.2, 0.25]
-READ_COUNTS = [50, 500, 1000, 2000]
+SUB_RATES_NEW = [0.01, 0.020]
+PROP_NEW = [x / 10.0 for x in range(0, 11, 1)]
+READ_COUNTS = [50, 500, 1000]
 
 BURNIN = 2500
 GIBBS_ITER = 5000
@@ -24,7 +24,9 @@ rule slample:
         pi_samples = "samples/pi_g_samples_new_{prop_new}_reads_{read_count}_sub-new_{sub_rate_new}.csv"
     params:
         burnin = BURNIN,
-        iterations = GIBBS_ITER
+        iterations = GIBBS_ITER,
+        prior_alpha = 0.8,
+        prior_beta = 0.9
     conda: 'env.yaml'
     resources:
         runtime = 15,

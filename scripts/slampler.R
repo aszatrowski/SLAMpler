@@ -205,7 +205,11 @@ gene_gibbs <- function(read_data, prior_alpha, prior_beta, niter = iterations) {
   )
 }
 
-run <- gene_gibbs(sim$reads, prior_alpha = 0.1, prior_beta = 0.9, niter = iterations)
+run <- gene_gibbs(sim$reads,
+  prior_alpha = snakemake@params$prior_alpha,
+  prior_beta = snakemake@params$prior_beta,
+  niter = iterations
+)
 
 # Post-hoc relabeling: ensure f_new > f_old so components are identifiable
 relabel_by_f_diff <- function(run) {

@@ -2,7 +2,7 @@ library(dplyr)
 library(ggplot2)
 
 sub_rate_new <- as.numeric(snakemake@wildcards[["sub_rate_new"]])
-pi_g_samples <- readr::read_csv(unlist(snakemake@input[["pi_samples"]]))
+pi_g_samples <- readr::read_csv(unlist(snakemake@input[["pi_samples"]]), show_col_types = FALSE)
 
 calibration_df <- pi_g_samples |>
   mutate(
@@ -14,7 +14,8 @@ calibration_df <- pi_g_samples |>
     map = mean(pi_g),
     # credible interval
     lower_ci = quantile(pi_g, 0.025),
-    upper_ci = quantile(pi_g, 0.975)
+    upper_ci = quantile(pi_g, 0.975),
+    .groups = "drop_last"
   )
 
 pi_g_dist_plot <- ggplot(
@@ -30,6 +31,7 @@ pi_g_dist_plot <- ggplot(
     position = position_dodge(width = 0.0125)
   ) +
   scale_color_viridis_d(begin = 0, end = 0.8) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray") +
   labs(
     color = "reads",
     x = bquote("True " ~ pi[g]),

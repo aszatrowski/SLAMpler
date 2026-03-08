@@ -1,6 +1,6 @@
 executor: slurm
 jobs: 30
 default-resources:
-  slurm_account: pi-lbarreiro
-  slurm_partition: lbarreiro
+  slurm_account: pi-jnovembre
+  slurm_partition: jnovembre-hm
 use-conda: true
