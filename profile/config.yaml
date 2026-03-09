@@ -2,5 +2,5 @@ executor: slurm
 jobs: 96
 default-resources:
   slurm_account: pi-jnovembre
-  slurm_partition: jnovembre-hm
+  slurm_partition: jnovembre
 use-conda: true

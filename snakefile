@@ -1,5 +1,7 @@
 import numpy as np
-SUB_RATES_NEW = np.around(np.arange(0.005, 0.020, 0.005), decimals = 3)
+import json
+
+SUB_RATES_NEW = np.around(np.arange(0.005, 0.03, 0.005), decimals = 3)
 PROP_NEW = np.around(np.arange(0, 1.05, 0.05), decimals=2)
 READ_COUNTS = [100, 500, 1000, 2000]
 
@@ -10,6 +12,12 @@ if BURNIN >= GIBBS_ITER * 0.6:
 
 PLOT_WIDTH = 8
 PLOT_HEIGHT = 4
+
+wildcards_to_plot = dict(
+    prop_new = '0.1',
+    read_count = '500',
+    sub_rate_new = '0.01'
+)
 
 localrules: plot_pi_g, plot_f, expected_subs, plot_z
 
@@ -39,11 +47,14 @@ rule slample:
         burnin = BURNIN,
         iterations = GIBBS_ITER,
         prior_alpha = 0.8,
-        prior_beta = 0.9
+        prior_beta = 0.9,
+        wildcards_to_plot = json.dumps(wildcards_to_plot)
     conda: 'env.yaml'
     resources:
-        runtime = 15,
+        runtime = 25,
         mem = "4GB"
+    benchmark:
+        "benchmarks/bench_{prop_new}_reads_{read_count}_sub-new_{sub_rate_new}.txt"
     script: "scripts/slampler.R"
 
 rule plot_pi_g:

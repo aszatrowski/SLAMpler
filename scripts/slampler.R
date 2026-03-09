@@ -164,7 +164,7 @@ gene_gibbs <- function(read_data, prior_alpha, prior_beta, niter = iterations) {
     z_out[i, ] <- z
     f_out[i, , ] <- f
     pi_out[i] <- pi_g
-    if (i %% 100 == 0) {
+    if (i %% 500 == 0) {
       sprintf(
         "[pi_g = %.3f, reads = %d, p_n = %.3f] iter: %d",
         total_new_rna_prop, read_count_g, sub_rate_new, i
@@ -241,7 +241,20 @@ z_hist_tbl <- tibble(run$z) |>
     class = factor(class, levels = c(1, 2), labels = c("old", "new")),
   )
 
-readr::write_csv(z_hist_tbl, snakemake@output[["z_samples"]])
+# Only export z samples if wildcards match the specified criteria
+wildcards_to_plot <- jsonlite::fromJSON(snakemake@params[["wildcards_to_plot"]])
+export_z <- all(
+  as.character(snakemake@wildcards[["prop_new"]]) == wildcards_to_plot$prop_new,
+  as.character(snakemake@wildcards[["read_count"]]) == wildcards_to_plot$read_count,
+  as.character(snakemake@wildcards[["sub_rate_new"]]) == wildcards_to_plot$sub_rate_new
+)
+
+if (export_z) {
+  readr::write_csv(z_hist_tbl, snakemake@output[["z_samples"]])
+} else {
+  # Create empty placeholder file to satisfy output requirement
+  file.create(snakemake@output[["z_samples"]])
+}
 
 pivot_f <- function(f_df) {
   f_long <- f_df |>
