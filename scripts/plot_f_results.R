@@ -34,12 +34,12 @@ f_dist_plot <- ggplot(
 ggsave(
   f_dist_plot,
   filename = snakemake@output[["f_dist_plot_png"]],
-  width = 10,
-  height = 6
+  width = snakemake@params[["plot_width"]],
+  height = snakemake@params[["plot_height"]]
 )
 ggsave(
   f_dist_plot,
   filename = snakemake@output[["f_dist_plot_pdf"]],
-  width = 10,
-  height = 6
+  width = snakemake@params[["plot_width"]],
+  height = snakemake@params[["plot_height"]]
 )

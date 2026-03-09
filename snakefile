@@ -8,6 +8,9 @@ GIBBS_ITER = 5000
 if BURNIN >= GIBBS_ITER * 0.6:
     raise ValueError("Too many iterations discarded as burn-in")
 
+PLOT_WIDTH = 7.5
+PLOT_HEIGHT = 4.5
+
 localrules: plot_pi_g, plot_f, expected_subs
 
 rule all:
@@ -50,6 +53,9 @@ rule plot_pi_g:
     output: 
         pi_dist_plot_pdf = "plots/pi_dist_plot_{sub_rate_new}.pdf",
         pi_dist_plot_png = "plots/pi_dist_plot_{sub_rate_new}.png"
+    params:
+        plot_height = PLOT_HEIGHT,
+        plot_width = PLOT_WIDTH
     conda: 'env.yaml'
     resources:
         runtime = 5,
@@ -67,6 +73,9 @@ rule plot_f:
     output: 
         f_dist_plot_pdf = "plots/f_dist_plot.pdf",
         f_dist_plot_png = "plots/f_dist_plot.png"
+    params:
+        plot_height = PLOT_HEIGHT,
+        plot_width = PLOT_WIDTH
     conda: 'env.yaml'
     resources:
         runtime = 5,
@@ -80,6 +89,9 @@ rule expected_subs:
     output:
         binom_plot_pdf = "plots/expected_subs.pdf",
         binom_plot_png = "plots/expected_subs.png"
-    params: sub_rates = SUB_RATES_NEW
+    params: 
+        sub_rates = SUB_RATES_NEW,
+        plot_height = PLOT_HEIGHT,
+        plot_width = PLOT_WIDTH
     conda: 'env.yaml'
     script: "scripts/expected_subs.R"
