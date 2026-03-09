@@ -18,17 +18,13 @@ calibration_df <- f_samples |>
 
 f_dist_plot <- ggplot(
   calibration_df,
-  aes(x = true_f_new, y = map, color = read_count, group = read_count)
-) +
-  geom_point(
-    position = position_dodge(width = 0.0025)
-  ) +
-  geom_errorbar(
-    aes(ymin = lower_ci, ymax = upper_ci),
-    width = 0.0025,
-    position = position_dodge(width = 0.0025)
-  ) +
-  scale_color_viridis_d(begin = 0, end = 0.8) +
+  aes(x = true_f_new, y = map, fill = read_count)) +
+  geom_line(aes(color = read_count)) +
+  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci), alpha = 0.25) +
+  scale_color_viridis_d(begin = 0.8, end = 0, guide = "none") +
+  scale_fill_viridis_d(begin = 0.8, end = 0) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(0, 0.03), expand = c(0, 0)) +
   labs(
     color = "Read Coverage",
     x = bquote("True " ~ p[n]),

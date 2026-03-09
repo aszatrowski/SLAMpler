@@ -1,6 +1,7 @@
-SUB_RATES_NEW = [0.01, 0.020]
-PROP_NEW = [x / 10.0 for x in range(0, 11, 1)]
-READ_COUNTS = [50, 500, 1000]
+import numpy as np
+SUB_RATES_NEW = np.arange(0.005, 0.03, 0.005)
+PROP_NEW = np.around(np.arange(0, 1.05, 0.05), decimals=2)
+READ_COUNTS = [50, 100, 500, 1000, 2000]
 
 BURNIN = 2500
 GIBBS_ITER = 5000

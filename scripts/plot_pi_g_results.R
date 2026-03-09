@@ -10,9 +10,7 @@ calibration_df <- pi_g_samples |>
   ) |>
   group_by(true_pi, read_count) |>
   summarise(
-    # mean a posteriori estimate
     map = mean(pi_g),
-    # credible interval
     lower_ci = quantile(pi_g, 0.025),
     upper_ci = quantile(pi_g, 0.975),
     .groups = "drop_last"
@@ -20,25 +18,21 @@ calibration_df <- pi_g_samples |>
 
 pi_g_dist_plot <- ggplot(
   calibration_df,
-  aes(x = true_pi, y = map, color = read_count, group = read_count)
-) +
-  geom_point(
-    position = position_dodge(width = 0.0125)
-  ) +
-  geom_errorbar(
-    aes(ymin = lower_ci, ymax = upper_ci),
-    width = 0.005,
-    position = position_dodge(width = 0.0125)
-  ) +
-  scale_color_viridis_d(begin = 0, end = 0.8) +
-  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray") +
+  aes(x = true_pi, y = map, fill = read_count)) +
+  geom_line(aes(color = read_count)) +
+  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci), alpha = 0.25) +
+  scale_color_viridis_d(begin = 0.8, end = 0, guide = "none") +
+  scale_fill_viridis_d(begin = 0.8, end = 0) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(limits = c(0, 1), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0, 1), expand = c(0, 0)) +
   labs(
-    color = "reads",
+    fill = "Read Count",
     x = bquote("True " ~ pi[g]),
-    y = bquote("Posterior " ~ pi[g]),
-    caption = bquote(p[n] == .(sub_rate_new))
+    y = bquote("Posterior " ~ pi[g])
   ) +
   theme_bw()
+
 ggsave(
   pi_g_dist_plot,
   filename = snakemake@output[["pi_dist_plot"]],
