@@ -241,6 +241,8 @@ z_hist_tbl <- tibble(run$z) |>
     class = factor(class, levels = c(1, 2), labels = c("old", "new")),
   )
 
+readr::write_csv(z_hist_tbl, snakemake@output[["z_samples"]])
+
 pivot_f <- function(f_df) {
   f_long <- f_df |>
     tidyr::pivot_longer(

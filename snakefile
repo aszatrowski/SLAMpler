@@ -1,5 +1,5 @@
 import numpy as np
-SUB_RATES_NEW = np.around(np.arange(0.005, 0.040, 0.005), decimals = 3)
+SUB_RATES_NEW = np.around(np.arange(0.005, 0.020, 0.005), decimals = 3)
 PROP_NEW = np.around(np.arange(0, 1.05, 0.05), decimals=2)
 READ_COUNTS = [100, 500, 1000, 2000]
 
@@ -8,10 +8,10 @@ GIBBS_ITER = 5000
 if BURNIN >= GIBBS_ITER * 0.6:
     raise ValueError("Too many iterations discarded as burn-in")
 
-PLOT_WIDTH = 7.5
-PLOT_HEIGHT = 4.5
+PLOT_WIDTH = 8
+PLOT_HEIGHT = 4
 
-localrules: plot_pi_g, plot_f, expected_subs
+localrules: plot_pi_g, plot_f, expected_subs, plot_z
 
 rule all:
     input: 
@@ -26,12 +26,15 @@ rule all:
         "plots/f_dist_plot.pdf",
         "plots/f_dist_plot.png",
         "plots/expected_subs.pdf",
-        "plots/expected_subs.png"
+        "plots/expected_subs.png",
+        "plots/z_classifications.pdf",
+        "plots/z_classifications.png"
 
 rule slample:
     output: 
         f_samples = "samples/f_samples_new_{prop_new}_reads_{read_count}_sub-new_{sub_rate_new}.csv",
-        pi_samples = "samples/pi_g_samples_new_{prop_new}_reads_{read_count}_sub-new_{sub_rate_new}.csv"
+        pi_samples = "samples/pi_g_samples_new_{prop_new}_reads_{read_count}_sub-new_{sub_rate_new}.csv",
+        z_samples = "samples/z_samples_new_{prop_new}_reads_{read_count}_sub-new_{sub_rate_new}.csv"
     params:
         burnin = BURNIN,
         iterations = GIBBS_ITER,
@@ -95,3 +98,17 @@ rule expected_subs:
         plot_width = PLOT_WIDTH
     conda: 'env.yaml'
     script: "scripts/expected_subs.R"
+
+rule plot_z:
+    input: "samples/z_samples_new_0.1_reads_500_sub-new_0.01.csv"
+    output: 
+        z_plot_pdf = "plots/z_classifications.pdf",
+        z_plot_png = "plots/z_classifications.png"
+    params:
+        plot_height = PLOT_HEIGHT,
+        plot_width = PLOT_WIDTH
+    conda: 'env.yaml'
+    resources:
+        runtime = 5,
+        mem = "2GB"
+    script: "scripts/plot_z_results.R"
