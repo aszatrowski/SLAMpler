@@ -37,12 +37,12 @@ pi_g_dist_plot <- ggplot(
 ggsave(
   pi_g_dist_plot,
   filename = snakemake@output[["pi_dist_plot_png"]],
-  width = 5,
-  height = 3
+  width = 10,
+  height = 6
 )
 ggsave(
   pi_g_dist_plot,
   filename = snakemake@output[["pi_dist_plot_pdf"]],
-  width = 5,
-  height = 3
+  width = 10,
+  height = 6
 )

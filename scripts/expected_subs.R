@@ -38,11 +38,11 @@ ggsave(
   binom_plot,
   filename = snakemake@output[["binom_plot_png"]],
   width = 8,
-  height = 6
+  height = 4
 )
 ggsave(
   binom_plot,
   filename = snakemake@output[["binom_plot_pdf"]],
   width = 8,
-  height = 6
+  height = 4
 )

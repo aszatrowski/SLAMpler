@@ -1,5 +1,5 @@
 import numpy as np
-SUB_RATES_NEW = np.arange(0.005, 0.025, 0.005)
+SUB_RATES_NEW = np.around(np.arange(0.005, 0.040, 0.005), decimals = 3)
 PROP_NEW = np.around(np.arange(0, 1.05, 0.05), decimals=2)
 READ_COUNTS = [100, 500, 1000, 2000]
 

@@ -1,5 +1,5 @@
 executor: slurm
-jobs: 48
+jobs: 96
 default-resources:
   slurm_account: pi-jnovembre
   slurm_partition: jnovembre-hm
