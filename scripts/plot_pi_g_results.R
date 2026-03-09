@@ -20,7 +20,7 @@ pi_g_dist_plot <- ggplot(
   calibration_df,
   aes(x = true_pi, y = map, fill = read_count)) +
   geom_line(aes(color = read_count)) +
-  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci), alpha = 0.25) +
+  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci), alpha = 0.15) +
   scale_color_viridis_d(begin = 0.8, end = 0, guide = "none") +
   scale_fill_viridis_d(begin = 0.8, end = 0) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "black") +
@@ -29,13 +29,20 @@ pi_g_dist_plot <- ggplot(
   labs(
     fill = "Read Count",
     x = bquote("True " ~ pi[g]),
-    y = bquote("Posterior " ~ pi[g])
+    y = bquote("Posterior " ~ pi[g]),
+    caption = bquote("Substitution Rate:" ~ .(sub_rate_new))
   ) +
   theme_bw()
 
 ggsave(
   pi_g_dist_plot,
-  filename = snakemake@output[["pi_dist_plot"]],
-  width = 8,
-  height = 6
+  filename = snakemake@output[["pi_dist_plot_png"]],
+  width = 5,
+  height = 3
+)
+ggsave(
+  pi_g_dist_plot,
+  filename = snakemake@output[["pi_dist_plot_pdf"]],
+  width = 5,
+  height = 3
 )

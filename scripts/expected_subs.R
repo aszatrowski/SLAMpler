@@ -36,7 +36,13 @@ binom_plot <- ggplot(distribution_df_long, aes(x = count, y = prob_of_count)) +
 
 ggsave(
   binom_plot,
-  filename = snakemake@output[["binom_plot"]],
+  filename = snakemake@output[["binom_plot_png"]],
+  width = 8,
+  height = 6
+)
+ggsave(
+  binom_plot,
+  filename = snakemake@output[["binom_plot_pdf"]],
   width = 8,
   height = 6
 )

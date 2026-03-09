@@ -1,7 +1,7 @@
 import numpy as np
-SUB_RATES_NEW = np.arange(0.005, 0.03, 0.005)
+SUB_RATES_NEW = np.arange(0.005, 0.025, 0.005)
 PROP_NEW = np.around(np.arange(0, 1.05, 0.05), decimals=2)
-READ_COUNTS = [50, 100, 500, 1000, 2000]
+READ_COUNTS = [100, 500, 1000, 2000]
 
 BURNIN = 2500
 GIBBS_ITER = 5000
@@ -16,7 +16,13 @@ rule all:
             "plots/pi_dist_plot_{sub_rate_new}.png",
             sub_rate_new = SUB_RATES_NEW
         ),
+        expand(
+            "plots/pi_dist_plot_{sub_rate_new}.pdf",
+            sub_rate_new = SUB_RATES_NEW
+        ),
+        "plots/f_dist_plot.pdf",
         "plots/f_dist_plot.png",
+        "plots/expected_subs.pdf",
         "plots/expected_subs.png"
 
 rule slample:
@@ -42,7 +48,8 @@ rule plot_pi_g:
             read_count = READ_COUNTS
         )
     output: 
-        pi_dist_plot = "plots/pi_dist_plot_{sub_rate_new}.png"
+        pi_dist_plot_pdf = "plots/pi_dist_plot_{sub_rate_new}.pdf",
+        pi_dist_plot_png = "plots/pi_dist_plot_{sub_rate_new}.png"
     conda: 'env.yaml'
     resources:
         runtime = 5,
@@ -58,7 +65,8 @@ rule plot_f:
             sub_rate_new = SUB_RATES_NEW
         )
     output: 
-        f_dist_plot = "plots/f_dist_plot.png"
+        f_dist_plot_pdf = "plots/f_dist_plot.pdf",
+        f_dist_plot_png = "plots/f_dist_plot.png"
     conda: 'env.yaml'
     resources:
         runtime = 5,
@@ -69,7 +77,9 @@ rule expected_subs:
     """
     Plot distribution of number of substitutions on a 150bp read given a substitution rate.
     """
-    output: binom_plot = "plots/expected_subs.png"
+    output:
+        binom_plot_pdf = "plots/expected_subs.pdf",
+        binom_plot_png = "plots/expected_subs.png"
     params: sub_rates = SUB_RATES_NEW
     conda: 'env.yaml'
     script: "scripts/expected_subs.R"

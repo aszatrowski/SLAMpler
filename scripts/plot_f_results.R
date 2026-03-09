@@ -24,7 +24,7 @@ f_dist_plot <- ggplot(
   scale_color_viridis_d(begin = 0.8, end = 0, guide = "none") +
   scale_fill_viridis_d(begin = 0.8, end = 0) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "black") +
-  scale_x_continuous(limits = c(0, 0.03), expand = c(0, 0)) +
+  scale_x_continuous(limits = c(0, 0.03)) +
   labs(
     color = "Read Coverage",
     x = bquote("True " ~ p[n]),
@@ -33,7 +33,13 @@ f_dist_plot <- ggplot(
   theme_bw()
 ggsave(
   f_dist_plot,
-  filename = snakemake@output[["f_dist_plot"]],
-  width = 8,
-  height = 6
+  filename = snakemake@output[["f_dist_plot_png"]],
+  width = 5,
+  height = 3
+)
+ggsave(
+  f_dist_plot,
+  filename = snakemake@output[["f_dist_plot_pdf"]],
+  width = 5,
+  height = 3
 )
